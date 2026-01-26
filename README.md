@@ -144,6 +144,30 @@ S8    = 1000k baud
    - Select appropriate COM port
    - Compile and upload
 
+## Flashing the Firmware
+
+### Method 1: Arduino IDE (Recommended)
+Use Arduino IDE to compile and flash the firmware:
+1. Open `joysticksteerbutton.ino` in Arduino IDE
+2. Select your ESP32 board and COM port
+3. Click Upload button
+
+### Method 2: Manual Flash with Pre-built Binaries
+
+If you have the pre-built binary files in the `build` folder, you can flash directly using esptool:
+
+```bash
+esptool.exe --chip esp32s3 --port "COM18" --baud 460800 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 80m --flash_size 8MB 0x0 ./build/joysticksteerbutton.ino.bootloader.bin 0x8000 ./build/joysticksteerbutton.ino.partitions.bin 0xe000 ./build/boot_app0.bin 0x10000 ./build/joysticksteerbutton.ino.bin
+```
+
+**Notes:**
+- This method is useful when you have pre-built binaries or need to flash without Arduino IDE
+- Replace `COM18` with your actual COM port
+- To list available COM ports on Windows, use: `mode` command in Command Prompt
+- Ensure all binary files are in the `./build/` directory
+- The baud rate is set to 460800 for faster flashing
+- Make sure the ESP32-S3 is in bootloader mode (usually by holding BOOT button while pressing RESET)
+
 ### Initial Configuration
 
 Connect via serial monitor (2000000 baud) and send:
