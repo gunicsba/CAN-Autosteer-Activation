@@ -18,7 +18,6 @@
 
 This project implements a CAN bus button controller based on ESP32 that integrates with AgOpenGPS agricultural guidance systems. The device monitors CAN bus traffic from various tractor brands (Deutz/Valtra/MF, CaseIH/New Holland, Fendt, FendtOne) and triggers an engage output when specific steering engagement messages are detected. The controller supports SLCAN protocol for diagnostics and configuration via serial communication.
 
-![Arduino IDE Setup](ArduinoIDEsetup.png)
 
 ## Features
 
@@ -131,13 +130,11 @@ S8    = 1000k baud
 
 2. **Board Settings**:
    ```
-   Board: ESP32 Dev Module
+   Board: ESP32S3 Dev Module
    Upload Speed: 921600
-   CPU Frequency: 240MHz
-   Flash Mode: QIO
-   Flash Size: 4MB
-   PSRAM: Disabled
    ```
+![Arduino IDE Setup](ArduinoIDEsetup.png)
+
 
 3. **Upload the Sketch**:
    - Open `joysticksteerbutton.ino`
