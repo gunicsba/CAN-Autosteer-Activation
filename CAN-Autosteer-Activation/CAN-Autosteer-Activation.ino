@@ -28,14 +28,14 @@ int CANBUSSPEED = 250000;       // Default baud rate
 // Only these brands have K-Bus engage messages:
 // 1=Deutz (Valtra/MF group), 2=CaseIH/NH, 3=Fendt, 5=FendtOne
 // 255 = All supported brands
-int Brand = 255;                // Default: all supported brands
+int Brand = 2;                // Default: all supported brands
 boolean addressClaim = false;   // Address claim disabled by default
 uint8_t CANBUS_ModuleID = 0x1C; // Default module ID
 
 // -------------------------------------------------------------
 // Engage Output Configuration
 // -------------------------------------------------------------
-#define OUTPUT_HOLD_MS 100      // Minimum output hold time (ms)
+#define OUTPUT_HOLD_MS 1000      // Minimum output hold time (ms)
 unsigned long engageHoldUntil = 0;  // Time until output can go low
 boolean engageState = false;    // Current engage state
 
@@ -65,6 +65,7 @@ void slcan_nack()
 // Set engage output HIGH with minimum hold time
 void setEngageOutput(boolean state)
 {
+    Serial.println("Engaged!!");
     if (state) {
         engageState = true;
         engageHoldUntil = millis() + OUTPUT_HOLD_MS;
@@ -484,6 +485,7 @@ void xfer_can2tty(twai_message_t &inMsg)
 
 void CAN_Drive_Initialization()
 {
+    Serial.print("Starting CAN Drive");
     // Initialize configuration structures using macro initializers
     twai_general_config_t g_config = TWAI_GENERAL_CONFIG_DEFAULT((gpio_num_t)CAN_TX, (gpio_num_t)CAN_RX, TWAI_MODE_NORMAL);
     twai_timing_config_t t_config = TWAI_TIMING_CONFIG_250KBITS();
@@ -498,6 +500,8 @@ void CAN_Drive_Initialization()
                                 TWAI_ALERT_BUS_ERROR | TWAI_ALERT_RX_DATA |
                                 TWAI_ALERT_RX_QUEUE_FULL;
     twai_reconfigure_alerts(alerts_to_enable, NULL);
+
+        Serial.print("Started CAN Drive");
 }
 
 // Check for K-Bus engage messages (only brands that support it)
@@ -553,12 +557,14 @@ void checkEngageMessage(twai_message_t &msg)
 
 void setup()
 {
-    Serial.begin(2000000);  // Standard SLCAN baud rate
-    
+    Serial.begin(921600);  // Standard SLCAN baud rate
+    delay(100);
     pinMode(engageLED, OUTPUT);
     digitalWrite(engageLED, LOW);
 
     CAN_Drive_Initialization();
+    Serial.print("Started!!  ");
+    Serial.println(Brand);
     
     // Delay startup messages to not interfere with SLCAN init
     delay(100);
@@ -566,8 +572,6 @@ void setup()
 
 void loop()
 {
-    // Process SLCAN serial commands
-    xfer_tty2can();
     
     // Check CAN alerts (non-blocking)
     uint32_t alerts_triggered;
@@ -590,8 +594,6 @@ void loop()
         twai_message_t rx_buf;
         while (twai_receive(&rx_buf, 0) == ESP_OK)
         {
-            // Output to SLCAN
-            xfer_can2tty(rx_buf);
             // Check for engage messages (all brands)
             checkEngageMessage(rx_buf);
         }
